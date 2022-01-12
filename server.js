@@ -35,19 +35,34 @@ server.on('request', (req, res) => {
                 const form = new formidable.IncomingForm({
                     uploadDir: path.join(__dirname, 'uploads'),
                     keepExtensions: true,
-                    maxFileSize: 5 * 1024 * 1024
+                    maxFileSize: 5 * 1024 * 1024,
+                    encoding: 'utf-8',
                 })
-                form.parse(req, (err, fields, files) => {
-                    if (err) {
-                        console.log("I am error", err)
-                        res.statusCode = 500
-                        res.end("Error")
-                    }
-                    else {
-                        res.statusCode = 200
-                        res.end("Successfully uploaded") 
-                    }
-                })
+                form.parse(req)
+                    .on('fileBegin', (name, file) => {
+                        console.log("Upload started")
+                    })
+                    .on('file', (name, file) => {
+                        console.log("Field + file pair recieved")
+                    })
+                    .on('field', (name, value) => {
+                        console.log("Field recieved: ")
+                        console.log(name, value)
+                    })
+                    .on('progress', (bytesReceived, bytesExpected) => {
+                        console.log(bytesReceived + ' / ' + bytesExpected)
+                    })
+                    .on('error', (err) => {
+                        console.error(err)
+                        req.resume()
+                    })
+                    .on('aborted', () => {
+                        console.error('Request aborted by the user')
+                    })
+                    .on('end', () => {
+                        console.log("Upload completed")
+                        res.end("Success")
+                    })
             }
 
     else {
