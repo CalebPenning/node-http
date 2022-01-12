@@ -1,14 +1,10 @@
 const http = require('http')
-const https = require('https')
 const services = require('./services')
 const url = require('url')
-const textBody = require('body')
 const jsonBody = require('body/json')
-const formBody = require('body/form')
-const anyBody = require('body/any')
-const fs = require('fs')
 
 const server = http.createServer()
+
 server.on('request', (req, res) => {
     const parsedUrl = url.parse(req.url, true)
     
