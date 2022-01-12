@@ -2,6 +2,9 @@ const http = require('http')
 const services = require('./services')
 const url = require('url')
 const jsonBody = require('body/json')
+const fs = require('fs')
+const formidable = require('formidable')
+const path = require('path')
 
 const server = http.createServer()
 
@@ -27,11 +30,28 @@ server.on('request', (req, res) => {
                 })
     }
 
+    else if (req.method === "POST"
+            && parsedUrl.pathname === "/upload") {
+                const form = new formidable.IncomingForm({
+                    uploadDir: path.join(__dirname, 'uploads'),
+                    keepExtensions: true,
+                    maxFileSize: 5 * 1024 * 1024
+                })
+                form.parse(req, (err, fields, files) => {
+                    if (err) {
+                        console.log("I am error", err)
+                        res.statusCode = 500
+                        res.end("Error")
+                    }
+                    else {
+                        res.statusCode = 200
+                        res.end("Successfully uploaded") 
+                    }
+                })
+            }
+
     else {
-        res.statusCode = 404
-        res.setHeader('x-powered-by', 'Node.js')
-        res.setHeader('content-type', 'application/json')
-        res.end()
+        fs.createReadStream("./static/index.html").pipe(res)
     }
 })
 
