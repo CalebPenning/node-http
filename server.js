@@ -12,8 +12,13 @@ server.on('request', (req, res) => {
         && parsedUrl.pathname === "/metadata") {
             const { id } = parsedUrl.query
             const metadata = services.fetchImageMetadata(id)
-            console.log(req.headers)
+            res.setHeader('Content-Type', 'application/json')
+            res.statusCode = 200
+            const serializedJSON = JSON.stringify(metadata)
+            res.write(serializedJSON)
+            res.end()
     }
+
     else if (req.method === "POST"
             && parsedUrl.pathname === "/users") {
                 jsonBody(req, res, (err, body) => {
@@ -21,10 +26,11 @@ server.on('request', (req, res) => {
                     else services.createUser(body['userName'])
                 })
     }
+
     else {
         res.statusCode = 404
         res.setHeader('x-powered-by', 'Node.js')
-        console.log(res)
+        res.setHeader('content-type', 'application/json')
         res.end()
     }
 })
